@@ -282,7 +282,7 @@ function renderLesson(){
  <div class="card"><h2>🗺️ 課程進度</h2><div class="map">${lessons.map((x,i)=>`<div class="map-card"><strong>${state.completed.includes(i)?'✅':'🔹'} ${i}. ${x.title}</strong><small>${i<=state.current?'已探索或正在學習':'完成前一關後解鎖'}</small></div>`).join("")}</div></div>
  <div class="actions">${next}</div>`;
  const qs=[
-  ["程式最重要的基本思維之一是什麼？","A. 把問題拆成小步驟","B. 背下所有語法","C. 只看別人的程式"],
+  ["程式最重要的基本思維之一是什麼？","A. 背下所有語法","B. 把問題拆成小步驟","C. 只看別人的程式"],
   ["int 最適合拿來表示哪一種資料？","A. 整數","B. 一整段文章","C. true / false"],
   ["哪一種資料類型適合一般小數？","A. double","B. bool","C. char"],
   ["哪一個比較適合存一段文字？","A. string","B. int","C. bool"],
