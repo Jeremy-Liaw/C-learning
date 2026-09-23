@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#111827">
+<title>C++ 冒險學院</title>
+<style>
+:root{
+  --bg:#f4f7fb;--panel:#fff;--text:#172033;--muted:#667085;
+  --primary:#5b5ce2;--primary2:#7c3aed;--line:#e6eaf0;
+  --good:#16a34a;--warn:#f59e0b;--shadow:0 12px 35px rgba(20,30,55,.08);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans TC",sans-serif;background:var(--bg);color:var(--text)}
+button{font:inherit;cursor:pointer}
+.app{min-height:100vh;display:grid;grid-template-columns:260px 1fr}
+.sidebar{background:#111827;color:#fff;padding:22px 16px;position:sticky;top:0;height:100vh;overflow:auto}
+.logo{font-size:22px;font-weight:800;margin-bottom:24px}.logo span{color:#a78bfa}
+.progress-box{background:#1f2937;padding:14px;border-radius:16px;margin-bottom:20px}
+.progress-row{display:flex;justify-content:space-between;font-size:13px;color:#cbd5e1;margin-bottom:8px}
+.bar{height:8px;background:#374151;border-radius:99px;overflow:hidden}.bar>i{display:block;height:100%;background:linear-gradient(90deg,#818cf8,#c084fc);border-radius:99px;width:0}
+.nav-title{font-size:12px;color:#9ca3af;margin:18px 8px 8px}
+.lesson-btn{width:100%;border:0;background:transparent;color:#d1d5db;text-align:left;padding:11px 12px;border-radius:12px;margin:2px 0;display:flex;gap:10px;align-items:center}
+.lesson-btn:hover,.lesson-btn.active{background:#312e81;color:#fff}.lesson-btn.locked{opacity:.45;cursor:not-allowed}
+.badge-dot{width:25px;height:25px;border-radius:50%;display:grid;place-items:center;background:#374151;font-size:12px}
+.main{min-width:0}.topbar{height:72px;background:rgba(255,255,255,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 30px;position:sticky;top:0;z-index:10}
+.xp{font-weight:800;color:#6d28d9}.mobile-menu{display:none;border:0;background:#eef2ff;padding:8px 11px;border-radius:10px}
+.content{max-width:1050px;margin:auto;padding:34px 30px 60px}
+.hero{background:linear-gradient(135deg,#312e81,#6d28d9);color:#fff;border-radius:24px;padding:30px;box-shadow:var(--shadow);margin-bottom:24px}
+.hero h1{margin:0 0 8px;font-size:32px}.hero p{margin:0;color:#e9e7ff;line-height:1.7}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:25px;box-shadow:var(--shadow);margin-bottom:20px}
+.lesson-head{display:flex;align-items:flex-start;justify-content:space-between;gap:15px}.tag{background:#ede9fe;color:#6d28d9;border-radius:99px;padding:6px 10px;font-size:12px;font-weight:700}
+h2{margin:0 0 12px}h3{margin-top:25px}.explain{line-height:1.85;color:#344054}
+.tip{background:#f5f3ff;border-left:4px solid var(--primary);padding:14px 16px;border-radius:10px;margin:18px 0}
+.code-wrap{background:#0b1020;border-radius:16px;overflow:hidden;margin:18px 0}.code-top{display:flex;justify-content:space-between;align-items:center;color:#aeb8cc;background:#151c30;padding:9px 13px;font-size:13px}
+textarea.code{display:block;width:100%;min-height:190px;border:0;outline:0;resize:vertical;background:#0b1020;color:#e5e7eb;padding:18px;font:14px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace}
+.output{border-top:1px solid #252d42;color:#d1fae5;padding:14px 18px;min-height:48px;white-space:pre-wrap;font-family:ui-monospace,monospace}
+.actions{display:flex;gap:10px;flex-wrap:wrap}.btn{border:0;border-radius:12px;padding:11px 16px;font-weight:700}.primary{background:var(--primary);color:#fff}.secondary{background:#eef2ff;color:#4338ca}.ghost{background:#f2f4f7;color:#344054}
+.quiz-option{width:100%;text-align:left;border:1px solid var(--line);background:#fff;padding:13px 15px;border-radius:12px;margin:7px 0}.quiz-option:hover{border-color:#a5b4fc;background:#f8f7ff}.quiz-option.correct{border-color:#86efac;background:#f0fdf4}.quiz-option.wrong{border-color:#fecaca;background:#fef2f2}
+.feedback{font-weight:700;margin-top:12px}.map{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.map-card{border:1px solid var(--line);border-radius:15px;padding:15px;background:#fff}.map-card strong{display:block;margin-bottom:5px}.map-card small{color:var(--muted)}
+.toast{position:fixed;right:20px;bottom:20px;background:#111827;color:#fff;padding:13px 16px;border-radius:12px;box-shadow:var(--shadow);opacity:0;transform:translateY(10px);transition:.25s;pointer-events:none}.toast.show{opacity:1;transform:none}
+@media(max-width:800px){
+ .app{display:block}.sidebar{position:fixed;left:-280px;top:0;width:260px;z-index:30;transition:.25s}.sidebar.open{left:0}.mobile-menu{display:block}
+ .topbar{padding:0 16px}.content{padding:20px 14px 40px}.hero{padding:22px}.hero h1{font-size:27px}.map{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar" id="sidebar">
+  <div class="logo">🚀 C++ <span>冒險學院</span></div>
+  <div class="progress-box">
+    <div class="progress-row"><span>學習進度</span><b id="progressText">0%</b></div>
+    <div class="bar"><i id="progressBar"></i></div>
+    <div style="margin-top:10px;font-size:13px;color:#cbd5e1">⭐ <span id="xpSide">0</span> XP</div>
+  </div>
+  <div class="nav-title">課程地圖</div>
+  <div id="lessonNav"></div>
+</aside>
+
+<main class="main">
+<header class="topbar">
+  <button class="mobile-menu" onclick="toggleMenu()">☰</button>
+  <strong id="topTitle">C++ 冒險學院</strong>
+  <div class="xp">⭐ <span id="xpTop">0</span> XP</div>
+</header>
+
+<section class="content" id="content"></section>
+</main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const lessons=[
+ {id:0,title:"程式是什麼？",icon:"🌱",xp:30,intro:"先從最基本的問題開始：程式到底是在做什麼？",
+ body:`<h3>把程式想成「指令清單」</h3>
+ <p class="explain">你每天其實都在執行很多步驟：起床 → 刷牙 → 吃早餐 → 出門。程式也一樣，只是我們把步驟寫成電腦看得懂的指令。</p>
+ <div class="tip">💡 學程式最重要的不是背語法，而是學會把一個問題拆成「電腦可以一步一步執行的事情」。</div>
+ <h3>第一個觀念：輸入 → 處理 → 輸出</h3>
+ <div class="map"><div class="map-card"><strong>📥 輸入</strong><small>取得資料，例如使用者輸入年齡</small></div><div class="map-card"><strong>⚙️ 處理</strong><small>計算、判斷、整理資料</small></div><div class="map-card"><strong>📤 輸出</strong><small>把結果顯示出來</small></div></div>
+ <h3>Hello World</h3><div class="code-wrap"><div class="code-top"><span>main.cpp</span><button class="btn secondary" onclick="runCode(0)">▶ 執行</button></div><textarea class="code" id="code0">#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    cout &lt;&lt; "Hello, C++!";
+    return 0;
+}</textarea><div class="output" id="out0">按下「執行」看看結果。</div></div>`},
+
+ {id:1,title:"認識數字與文字",icon:"🔢",xp:35,intro:"在寫程式前，先認識電腦眼中的「資料」。",
+ body:`<h3>資料不是只有數字</h3><p class="explain">程式會處理很多不同種類的資料：年齡、價格、姓名、是否通過等等。不同資料通常需要不同的資料類型。</p>
+ <div class="map"><div class="map-card"><strong>🔢 整數</strong><small>15、100、-3</small></div><div class="map-card"><strong>🔣 小數</strong><small>3.14、0.5、99.9</small></div><div class="map-card"><strong>🔤 文字</strong><small>"Hello"、"Jeremy"</small></div><div class="map-card"><strong>☑️ 真偽</strong><small>true / false</small></div></div>
+ <div class="tip">💡 可以先把「資料類型」想成：告訴 C++「這個盒子準備拿來裝什麼東西」。</div>`},
+
+ {id:2,title:"資料類型：int",icon:"🔢",xp:40,intro:"第一個正式資料類型：int，專門處理整數。",
+ body:`<h3>int 是什麼？</h3><p class="explain"><code>int</code> 是 integer 的縮寫，可以用來存整數。</p>
+ <div class="code-wrap"><textarea class="code" readonly>int age = 15;
+int score = 100;
+int temperature = -3;</textarea></div>
+ <p class="explain">讀法可以想成：「建立一個叫 age 的整數盒子，先放入 15。」</p>
+ <div class="tip">⚠️ <code>int age = 15.5;</code> 不適合用來保存真正的小數。下一關會學專門的小數類型。</div>`},
+
+ {id:3,title:"資料類型：float 與 double",icon:"📏",xp:40,intro:"當資料有小數時，就需要能表示小數的資料類型。",
+ body:`<h3>float 與 double</h3><p class="explain"><code>float</code> 和 <code>double</code> 都可以表示小數。初學時先記住：兩者都是「可以裝小數的盒子」，<code>double</code> 通常能提供更高的精度。</p>
+ <div class="code-wrap"><textarea class="code" readonly>float height = 170.5f;
+double pi = 3.1415926535;</textarea></div>
+ <div class="tip">💡 不需要一開始就背所有規格。先建立分類思維：整數 → int；一般小數 → double / float。</div>`},
+
+ {id:4,title:"資料類型：char、string、bool",icon:"🔤",xp:45,intro:"最後補上三種新手最常遇到的資料。",
+ body:`<h3>三種不同資料</h3>
+ <div class="code-wrap"><textarea class="code" readonly>char grade = 'A';
+string name = "Alex";
+bool isStudent = true;</textarea></div>
+ <p class="explain"><code>char</code> 通常放一個字元，使用單引號；<code>string</code> 放一段文字，使用雙引號；<code>bool</code> 只有 <code>true</code> 或 <code>false</code>。</p>
+ <div class="tip">🧠 小測試：姓名是「一個字元」還是「一串文字」？答案會決定你應該使用 char 還是 string。</div>`},
+
+ {id:5,title:"變數：建立資料盒",icon:"📦",xp:45,intro:"現在把「資料類型」和「變數」組合起來。",
+ body:`<h3>變數就是有名字的資料盒</h3><div class="code-wrap"><textarea class="code" readonly>int apples = 5;
+apples = 8;</textarea></div>
+ <p class="explain">第一行建立盒子並放入 5。第二行把盒子裡的值改成 8。</p>
+ <div class="tip">💡 看到 <code>int apples</code> 時，可以在腦中翻譯成：「我要一個只能放整數、名字叫 apples 的盒子。」</div>`},
+
+ {id:6,title:"運算思維：先想步驟",icon:"🧠",xp:55,intro:"開始真正學「程式設計的思維」，而不只是背語法。",
+ body:`<h3>先不要寫程式</h3><p class="explain">假設題目是：「小明有 10 元，又得到 20 元，現在有多少元？」不要急著打程式，先把問題拆開。</p>
+ <div class="map"><div class="map-card"><strong>① 找資料</strong><small>原本有 10</small></div><div class="map-card"><strong>② 找動作</strong><small>加上 20</small></div><div class="map-card"><strong>③ 找答案</strong><small>10 + 20 = 30</small></div></div>
+ <p class="explain">這就是「運算思維」的入門：<b>把問題拆成明確的小步驟。</b></p>`},
+
+ {id:7,title:"四則運算",icon:"➕",xp:55,intro:"讓程式幫你做加、減、乘、除。",
+ body:`<h3>基本運算子</h3><div class="code-wrap"><textarea class="code" readonly>int a = 10;
+int b = 3;
+
+cout << a + b; // 13
+cout << a - b; // 7
+cout << a * b; // 30
+cout << a / b; // 3</textarea></div>
+ <div class="tip">⚠️ 兩個 int 做除法時，小數部分可能會被捨去。這不是電腦算錯，而是「資料類型」影響了結果。</div>
+ <h3>想一想</h3><p class="explain">如果要算「平均分數」，你會需要整數還是小數？先想需求，再決定資料類型。</p>`},
+
+ {id:8,title:"餘數與 %",icon:"🧮",xp:50,intro:"學會判斷奇偶數、週期與分組問題的關鍵工具。",
+ body:`<h3>% 不是百分比</h3><p class="explain"><code>a % b</code> 是「a 除以 b 後的餘數」。</p>
+ <div class="code-wrap"><textarea class="code" readonly>10 % 3  // 1
+8 % 2   // 0
+15 % 4  // 3</textarea></div>
+ <div class="tip">🎯 如果 <code>number % 2 == 0</code>，就代表 number 是偶數。這是非常經典的程式題型。</div>`},
+
+ {id:9,title:"運算的優先順序",icon:"📐",xp:50,intro:"為什麼同一串數字可能算出不同結果？因為運算有順序。",
+ body:`<h3>先乘除、後加減</h3><div class="code-wrap"><textarea class="code" readonly>int a = 2 + 3 * 4;    // 14
+int b = (2 + 3) * 4;  // 20</textarea></div>
+ <p class="explain">括號可以明確告訴電腦「先做哪一件事」。寫程式時，寧願多一個括號，也不要讓自己和別人猜。</p>`},
+
+ {id:10,title:"輸出：cout",icon:"📤",xp:45,intro:"讓程式把資訊顯示給使用者。",
+ body:`<h3>cout</h3><div class="code-wrap"><textarea class="code" readonly>cout << "你好！";
+cout << 123;
+cout << age;</textarea></div>
+ <p class="explain"><code>&lt;&lt;</code> 可以先理解成「把右邊的東西送到輸出畫面」。文字放在雙引號裡，變數則直接寫名稱。</p>`},
+
+ {id:11,title:"輸入：cin",icon:"⌨️",xp:55,intro:"讓使用者可以把資料交給你的程式。",
+ body:`<h3>cin</h3><div class="code-wrap"><textarea class="code" readonly>int age;
+cin >> age;
+
+cout << age;</textarea></div>
+ <p class="explain">程式先準備一個整數盒子 <code>age</code>，再等待使用者輸入，最後把輸入的值放進盒子。</p>
+ <div class="tip">🧠 思考順序：<b>準備資料 → 請使用者輸入 → 把資料存起來 → 使用資料。</b></div>`},
+
+ {id:12,title:"判斷：true 與 false",icon:"❓",xp:55,intro:"程式不只會計算，也會問問題。",
+ body:`<h3>條件就是一個「是或不是」的問題</h3><div class="code-wrap"><textarea class="code" readonly>age >= 18
+score == 100
+name == "Alex"</textarea></div>
+ <p class="explain">這些運算式最後會得到 <code>true</code> 或 <code>false</code>。</p>
+ <div class="tip">💡 程式設計中非常重要的思考方式：把現實世界的規則轉成「可以回答 true / false 的問題」。</div>`},
+
+ {id:13,title:"if / else",icon:"🔀",xp:65,intro:"讓程式根據條件選擇不同路線。",
+ body:`<h3>如果……否則……</h3><div class="code-wrap"><textarea class="code" readonly>if (score >= 60) {
+    cout << "及格";
+} else {
+    cout << "需要再努力";
+}</textarea></div>
+ <p class="explain">可以把它翻譯成：「如果分數大於等於 60，就做 A；否則做 B。」</p>`},
+
+ {id:14,title:"多重條件",icon:"🚦",xp:70,intro:"當情況不只有兩種，就使用 else if。",
+ body:`<div class="code-wrap"><textarea class="code" readonly>if (score >= 90) {
+    cout << "A";
+} else if (score >= 80) {
+    cout << "B";
+} else if (score >= 60) {
+    cout << "C";
+} else {
+    cout << "D";
+}</textarea></div>
+ <p class="explain">條件會按照順序檢查。這也是為什麼「條件順序」很重要。</p>`},
+
+ {id:15,title:"for 迴圈：重複做事",icon:"🔁",xp:75,intro:"把重複工作交給電腦。",
+ body:`<h3>for 的三個問題</h3><p class="explain">可以把 for 想成同時回答三件事：<b>從哪裡開始？什麼時候停止？每次怎麼改變？</b></p>
+ <div class="code-wrap"><textarea class="code" readonly>for (int i = 1; i <= 5; i++) {
+    cout << i << endl;
+}</textarea></div>
+ <div class="tip">🧠 不要死背這一行。先用中文說：「i 從 1 開始，只要 i ≤ 5 就繼續，每次增加 1。」</div>`},
+
+ {id:16,title:"while 迴圈",icon:"♻️",xp:70,intro:"當你比較適合用「只要條件成立，就繼續」時，可以使用 while。",
+ body:`<div class="code-wrap"><textarea class="code" readonly>int count = 1;
+
+while (count <= 5) {
+    cout << count << endl;
+    count++;
+}</textarea></div>
+ <p class="explain">while 的核心思維是：「條件成立 → 做一次 → 再檢查 → 再決定要不要做。」</p>`},
+
+ {id:17,title:"函式：把工作打包",icon:"🧩",xp:85,intro:"程式越來越大時，把功能拆成小工具。",
+ body:`<div class="code-wrap"><textarea class="code" readonly>int add(int a, int b) {
+    return a + b;
+}
+
+int answer = add(3, 5);</textarea></div>
+ <p class="explain">函式可以想成一台小機器：你把資料放進去，它按照固定規則工作，最後把結果交出來。</p>`},
+
+ {id:18,title:"陣列與資料集合",icon:"🗃️",xp:90,intro:"當你有很多同類型資料時，不必建立一堆變數。",
+ body:`<div class="code-wrap"><textarea class="code" readonly>int scores[3] = {80, 90, 75};
+
+cout << scores[0];
+cout << scores[1];
+cout << scores[2];</textarea></div>
+ <p class="explain">陣列的第一個位置是 0，不是 1。這是很多新手第一次遇到的「程式思維差異」。</p>`},
+
+ {id:19,title:"vector：更好用的集合",icon:"📚",xp:100,intro:"認識 C++ 非常常用的資料容器。",
+ body:`<div class="code-wrap"><textarea class="code" readonly>#include <vector>
+
+vector<int> scores = {80, 90, 75};
+scores.push_back(100);</textarea></div>
+ <p class="explain"><code>vector</code> 可以想成大小比較有彈性的資料盒集合。它是 C++ 實戰中非常常見的工具。</p>`},
+
+ {id:20,title:"Class 與物件",icon:"🏗️",xp:120,intro:"把「資料」和「能做的事情」組合成一個完整的物件。",
+ body:`<div class="code-wrap"><textarea class="code" readonly>class Player {
+public:
+    string name;
+    int score;
+};</textarea></div>
+ <p class="explain">可以把 class 想成設計圖，再用這張設計圖建立不同的 Player。</p>`},
+
+ {id:21,title:"終極專案：從想法到程式",icon:"🏆",xp:200,intro:"不再只是做題目，而是自己分析問題、設計流程，再寫成 C++。",
+ body:`<h3>🎮 你的第一個專案</h3><p class="explain">選一個題目：猜數字遊戲、成績管理系統、簡易計算機、文字冒險遊戲。</p>
+ <div class="tip">🏆 專案的第一步不是寫程式，而是先回答：<b>我要讓使用者輸入什麼？程式要怎麼處理？最後要輸出什麼？</b></div>
+ <h3>你的能力地圖</h3><div class="map"><div class="map-card"><strong>資料</strong><small>int / double / string / bool</small></div><div class="map-card"><strong>運算</strong><small>+ - * / % 與優先順序</small></div><div class="map-card"><strong>流程</strong><small>if / else / for / while</small></div><div class="map-card"><strong>組織</strong><small>函式 / 陣列 / vector / class</small></div></div>`}
+];
+
+let state=JSON.parse(localStorage.getItem("cppAcademy")||'null')||{xp:0,completed:[],current:0,quiz:{}};
+
+function save(){localStorage.setItem("cppAcademy",JSON.stringify(state));updateProgress()}
+function updateProgress(){
+ const pct=Math.round(state.completed.length/lessons.length*100);
+ document.getElementById("progressBar").style.width=pct+"%";
+ document.getElementById("progressText").textContent=pct+"%";
+ document.getElementById("xpSide").textContent=state.xp;
+ document.getElementById("xpTop").textContent=state.xp;
+}
+function renderNav(){
+ const nav=document.getElementById("lessonNav");
+ nav.innerHTML=lessons.map((l,i)=>{
+   const locked=i>0&&!state.completed.includes(i-1);
+   const done=state.completed.includes(i);
+   return `<button class="lesson-btn ${i===state.current?'active':''} ${locked?'locked':''}" ${locked?'disabled':''} onclick="openLesson(${i})">
+    <span class="badge-dot">${done?'✓':l.icon}</span><span>${i}. ${l.title}</span>
+   </button>`
+ }).join("");
+}
+function openLesson(i){
+ if(i>0&&!state.completed.includes(i-1)){toast("先完成上一關，就能解鎖這一關！");return}
+ state.current=i;renderNav();renderLesson();window.scrollTo({top:0,behavior:"smooth"});
+ document.getElementById("sidebar").classList.remove("open");
+}
+function renderLesson(){
+ const l=lessons[state.current];
+ document.getElementById("topTitle").textContent=`第 ${l.id} 關｜${l.title}`;
+ const next=state.current+1<lessons.length?`<button class="btn primary" onclick="completeLesson()">完成本關並解鎖下一關 →</button>`:`<button class="btn primary" onclick="completeLesson()">🏆 完成課程</button>`;
+ document.getElementById("content").innerHTML=`
+ <div class="hero"><h1>${l.icon} ${l.title}</h1><p>${l.intro}</p></div>
+ <div class="card"><div class="lesson-head"><div><h2>本關學習內容</h2><span class="tag">⭐ ${l.xp} XP</span></div></div>${l.body}</div>
+ <div class="card"><h2>📝 小測驗</h2><p id="quizQuestion"></p>
+ <button class="quiz-option" id="quizA" onclick="quiz(this,false)"></button>
+ <button class="quiz-option" id="quizB" onclick="quiz(this,true)"></button>
+ <button class="quiz-option" id="quizC" onclick="quiz(this,false)"></button>
+ <div class="feedback" id="feedback"></div></div>
+ <div class="card"><h2>🗺️ 課程進度</h2><div class="map">${lessons.map((x,i)=>`<div class="map-card"><strong>${state.completed.includes(i)?'✅':'🔹'} ${i}. ${x.title}</strong><small>${i<=state.current?'已探索或正在學習':'完成前一關後解鎖'}</small></div>`).join("")}</div></div>
+ <div class="actions">${next}</div>`;
+ const qs=[
+  ["程式最重要的基本思維之一是什麼？","A. 把問題拆成小步驟","B. 背下所有語法","C. 只看別人的程式"],
+  ["int 最適合拿來表示哪一種資料？","A. 整數","B. 一整段文章","C. true / false"],
+  ["哪一種資料類型適合一般小數？","A. double","B. bool","C. char"],
+  ["哪一個比較適合存一段文字？","A. string","B. int","C. bool"],
+  ["變數可以先理解成什麼？","A. 有名字的資料盒","B. 一個按鈕","C. 一個網頁"],
+  ["寫程式前，遇到問題比較好的第一步是什麼？","A. 先拆解問題與步驟","B. 直接亂試語法","C. 先背 100 個指令"],
+  ["2 + 3 * 4 的結果是？","A. 14","B. 20","C. 24"],
+  ["10 % 3 的結果是？","A. 1","B. 3","C. 0"],
+  ["哪一種方式可以明確改變運算順序？","A. 括號","B. 換變數名字","C. 加空白"],
+  ["cout 主要用來做什麼？","A. 輸出資料","B. 宣告變數","C. 重複執行"],
+  ["cin 主要用來做什麼？","A. 取得輸入","B. 排序陣列","C. 建立 class"],
+  ["條件運算通常會得到什麼？","A. true 或 false","B. 永遠是文字","C. 永遠是小數"],
+  ["if 的用途是什麼？","A. 根據條件選擇要做什麼","B. 建立圖片","C. 儲存檔案"],
+  ["else if 可以用來做什麼？","A. 檢查多種情況","B. 宣告字串","C. 結束所有程式"],
+  ["for 迴圈最適合描述什麼？","A. 重複執行一段工作","B. 建立網頁","C. 儲存圖片"],
+  ["while 的核心概念是什麼？","A. 條件成立就繼續","B. 永遠只做一次","C. 只能處理文字"],
+  ["函式可以先想成什麼？","A. 可重複使用的小工具","B. 一種資料類型","C. 一個變數"],
+  ["陣列的第一個索引通常是？","A. 0","B. 1","C. -1"],
+  ["vector 最適合拿來做什麼？","A. 管理一組資料","B. 播放音樂","C. 顯示圖片"],
+  ["class 可以先想成什麼？","A. 建立物件的設計圖","B. 一個迴圈","C. 一個數字"],
+  ["做專案前最值得先想的是什麼？","A. 輸入、處理、輸出","B. 先把程式寫完再想","C. 先複製別人的程式"]
+ ];
+ const q=qs[l.id]||qs[0];
+ document.getElementById("quizQuestion").textContent=q[0];
+ document.getElementById("quizA").textContent=q[1];
+ document.getElementById("quizB").textContent=q[2];
+ document.getElementById("quizC").textContent=q[3];
+}
+function quiz(el,correct){
+ document.querySelectorAll(".quiz-option").forEach(x=>x.disabled=true);
+ const f=document.getElementById("feedback");
+ if(correct){el.classList.add("correct");f.textContent="🎉 答對了！這個概念很重要。";f.style.color="var(--good)"}
+ else{el.classList.add("wrong");f.textContent="再想想看：程式通常從哪裡開始執行？";f.style.color="#dc2626"}
+}
+function completeLesson(){
+ const i=state.current;
+ if(!state.completed.includes(i)){state.completed.push(i);state.xp+=lessons[i].xp;save();toast(`🎉 完成第 ${i} 關！獲得 ${lessons[i].xp} XP`)}
+ if(i<lessons.length-1){state.current=i+1;save();renderNav();renderLesson()}
+ else{toast("🏆 恭喜！你完成了 C++ 冒險學院第一版課程！")}
+}
+function runCode(i){
+ const text=document.getElementById("code"+i).value;
+ let output="（瀏覽器示範模式）\n";
+ if(text.includes('Hello, C++!'))output+="Hello, C++!";
+ else output+="已讀取程式碼。正式 C++ 編譯器功能可在下一版接入。";
+ document.getElementById("out"+i).textContent=output;
+}
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2200)}
+function toggleMenu(){document.getElementById("sidebar").classList.toggle("open")}
+renderNav();updateProgress();renderLesson();
+</script>
+</body>
+</html>
